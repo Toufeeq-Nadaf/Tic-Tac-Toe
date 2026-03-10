@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modern Tic Tac Toe</title>
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+h1 {
+    font-size: 2.5rem;
+    color: #f7971e;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    color: #aaa;
+    margin-bottom: 20px;
+}
+
+.choice-box {
+    margin-bottom: 20px;
+}
+.choice-box button {
+    margin: 5px;
+    padding: 8px 20px;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    background: #f7971e;
+    color: black;
+    transition: 0.2s;
+}
+.choice-box button:hover {
+    transform: scale(1.1);
+}
+
+.scoreboard {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+.score-box {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 12px 25px;
+    text-align: center;
+}
+.score-box span {
+    font-size: 0.75rem;
+    color: #aaa;
+    display: block;
+}
+.score-box p {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #f7971e;
+}
+
+.status {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    height: 30px;
+    color: #00ff64;
+    font-weight: bold;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 110px);
+    grid-template-rows: repeat(3, 110px);
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.cell {
+    background: rgba(255,255,255,0.07);
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    cursor: pointer;
+    transition: 0.2s;
+    user-select: none;
+}
+
+.cell:hover {
+    background: rgba(247,151,30,0.15);
+    border-color: #f7971e;
+    transform: scale(1.05);
+}
+
+.cell.x { color: #f7971e; }
+.cell.o { color: #00d4ff; }
+
+.cell.win {
+    background: rgba(0,255,100,0.15);
+    border-color: #00ff64;
+}
+
+/* FIXING RESTART AND RESET BUTTONS */
+.buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.control {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: 0.3s;
+    text-transform: uppercase;
+}
+
+.restart {
+    background: #f7971e;
+    color: black;
+}
+
+.reset {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.control:hover {
+    transform: translateY(-3px);
+    filter: brightness(1.2);
+}
+
+/* POPUP */
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: 0.3s;
+}
+
+.popup.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+.popup-content {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(12px);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    animation: pop 0.4s ease;
+}
+
+@keyframes pop {
+    from { transform: scale(0.6); }
+    to { transform: scale(1); }
+}
+
+.popup-content h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.popup-content button {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 30px;
+    background: #f7971e;
+    cursor: pointer;
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<h1>❌ Tic Tac Toe ⭕</h1>
+<p class="subtitle">Single Player | Hard Mode</p>
+
+<div class="choice-box">
+    <button onclick="chooseSymbol('X')">Play as ❌</button>
+    <button onclick="chooseSymbol('O')">Play as ⭕</button>
+</div>
+
+<div class="scoreboard">
+    <div class="score-box">
+        <span>You</span>
+        <p id="scorePlayer">0</p>
+    </div>
+    <div class="score-box">
+        <span>Draws</span>
+        <p id="scoreDraw">0</p>
+    </div>
+    <div class="score-box">
+        <span>Computer</span>
+        <p id="scoreComputer">0</p>
+    </div>
+</div>
+
+<div class="status" id="status">Select X or O to Start</div>
+
+<div class="board">
+    <div class="cell" onclick="handleClick(0)"></div>
+    <div class="cell" onclick="handleClick(1)"></div>
+    <div class="cell" onclick="handleClick(2)"></div>
+    <div class="cell" onclick="handleClick(3)"></div>
+    <div class="cell" onclick="handleClick(4)"></div>
+    <div class="cell" onclick="handleClick(5)"></div>
+    <div class="cell" onclick="handleClick(6)"></div>
+    <div class="cell" onclick="handleClick(7)"></div>
+    <div class="cell" onclick="handleClick(8)"></div>
+</div>
+
+<div class="buttons">
+    <button class="control restart" onclick="restartGame()">Restart</button>
+    <button class="control reset" onclick="resetScore()">Reset Score</button>
+</div>
+
+<div class="popup" id="popup">
+    <div class="popup-content">
+        <h2 id="winnerText"></h2>
+        <button onclick="closePopup()">Continue</button>
+    </div>
+</div>
+
+<script>
+// Sounds are pre-loaded to avoid lag
+const clickSound = new Audio("https://www.soundjay.com/buttons/sounds/button-16.mp3");
+const winSound = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
+const loseSound = new Audio("https://www.soundjay.com/button/sounds/beep-10.mp3");
+const drawSound = new Audio("https://www.soundjay.com/button/sounds/button-4.mp3");
+
+let board = ['','','','','','','','',''];
+let gameActive = false;
+let playerSymbol = 'X';
+let computerSymbol = 'O';
+
+let scorePlayer = 0;
+let scoreComputer = 0;
+let scoreDraw = 0;
+
+const winCombos = [
+[0,1,2],[3,4,5],[6,7,8],
+[0,3,6],[1,4,7],[2,5,8],
+[0,4,8],[2,4,6]
+];
+
+function chooseSymbol(symbol){
+    clickSound.play();
+    playerSymbol = symbol;
+    computerSymbol = symbol === 'X' ? 'O' : 'X';
+    restartGame();
+    gameActive = true;
+
+    if(playerSymbol === 'O'){
+        document.getElementById("status").textContent = "Computer Turn 🤖";
+        setTimeout(computerMove, 500);
+    } else {
+        document.getElementById("status").textContent = "Your Turn ❌";
+    }
+}
+
+function handleClick(index){
+    if(!gameActive || board[index] !== '') return;
+
+    clickSound.play();
+    makeMove(index, playerSymbol);
+
+    if(gameActive){
+        setTimeout(computerMove, 400);
+    }
+}
+
+function makeMove(index, symbol){
+    board[index] = symbol;
+    const cells = document.querySelectorAll('.cell');
+    cells[index].textContent = symbol === 'X' ? '❌' : '⭕';
+    cells[index].classList.add(symbol.toLowerCase());
+
+    let result = checkWinner();
+
+    if(result === 'win'){
+        highlightWin();
+        gameActive = false;
+
+        if(symbol === playerSymbol){
+            scorePlayer++;
+            winSound.play();
+            document.getElementById("winnerText").textContent = "You Win! 🎉";
+        } else {
+            scoreComputer++;
+            loseSound.play();
+            document.getElementById("winnerText").textContent = "Computer Wins! 🤖";
+        }
+
+        updateScore();
+        document.getElementById("popup").classList.add("active");
+    }
+    else if(result === 'draw'){
+        scoreDraw++;
+        drawSound.play();
+        updateScore();
+        gameActive = false;
+
+        document.getElementById("winnerText").textContent = "It's a Draw 🤝";
+        document.getElementById("popup").classList.add("active");
+    }
+}
+
+function computerMove(){
+    if(!gameActive) return;
+    let move = getBestMove();
+    makeMove(move, computerSymbol);
+    clickSound.play();
+}
+
+function getBestMove(){
+    for(let combo of winCombos){
+        let [a,b,c] = combo;
+        let values = [board[a], board[b], board[c]];
+        if(values.filter(v=>v===computerSymbol).length===2 && values.includes('')){
+            return combo[values.indexOf('')];
+        }
+    }
+    for(let combo of winCombos){
+        let [a,b,c] = combo;
+        let values = [board[a], board[b], board[c]];
+        if(values.filter(v=>v===playerSymbol).length===2 && values.includes('')){
+            return combo[values.indexOf('')];
+        }
+    }
+    if(board[4]==='') return 4;
+    let empty = board.map((v,i)=> v===''?i:null).filter(v=>v!==null);
+    return empty[Math.floor(Math.random()*empty.length)];
+}
+
+function checkWinner(){
+    for(let combo of winCombos){
+        let [a,b,c] = combo;
+        if(board[a] && board[a]===board[b] && board[a]===board[c]){
+            return 'win';
+        }
+    }
+    if(board.every(cell=>cell!=='')) return 'draw';
+    return null;
+}
+
+function highlightWin(){
+    const cells = document.querySelectorAll('.cell');
+    for(let combo of winCombos){
+        let [a,b,c] = combo;
+        if(board[a] && board[a]===board[b] && board[a]===board[c]){
+            cells[a].classList.add('win');
+            cells[b].classList.add('win');
+            cells[c].classList.add('win');
+        }
+    }
+}
+
+function updateScore(){
+    document.getElementById('scorePlayer').textContent = scorePlayer;
+    document.getElementById('scoreComputer').textContent = scoreComputer;
+    document.getElementById('scoreDraw').textContent = scoreDraw;
+}
+
+function restartGame(){
+    clickSound.play();
+    board = ['','','','','','','','',''];
+    document.querySelectorAll('.cell').forEach(cell=>{
+        cell.textContent='';
+        cell.className='cell';
+    });
+    gameActive = true;
+    document.getElementById("status").textContent = "Your Turn " + (playerSymbol === 'X' ? '❌' : '⭕');
+}
+
+function resetScore(){
+    clickSound.play();
+    scorePlayer = 0;
+    scoreComputer = 0;
+    scoreDraw = 0;
+    updateScore();
+    restartGame();
+}
+
+function closePopup(){
+    clickSound.play();
+    document.getElementById("popup").classList.remove("active");
+    restartGame();
+}
+</script>
+
+</body>
+</html>
